@@ -249,14 +249,46 @@ h1, h2, h3 {
   background-color: #ffffff10;
 }
 
-/* ============ RESPONSIVE ============ */
+/* ============ RESPONSIVE MEJORADO ============ */
 @media (max-width: 768px) {
   .dashboard {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, auto);
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
+
+  .cuadrante {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
   body {
     overflow: auto;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  h1, h2, h3 {
+    font-size: 1.2rem;
+  }
+
+  #timer {
+    font-size: 2.2rem;
+  }
+
+  .buttons button,
+  #gratitud button {
+    font-size: 1rem;
+    padding: 12px 20px;
+  }
+
+  .modal-content button {
+    font-size: 0.9rem;
+    padding: 10px 14px;
   }
 }
