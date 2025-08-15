@@ -1,93 +1,154 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Pomodoro</title>
+  <title>Pomodoro + Registro Diario</title>
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 
 <body>
-<nav>
-  <div class="logo">
-    <img src="./assets/img/logo.png" alt="Logo Pomodoro" />
-    <h1>Dashboard Pomodoro</h1>
-  </div>
-  
-</nav>
-  <div class="dashboard">
-
-    <!-- Cuadrante 1: Lista de 10 tareas con checkbox -->
-    <div class="cuadrante" id="tareas">
-      <h2>Tareas del día</h2>
+  <main class="dashboard">
+    <!-- CUADRANTE 1: Tareas -->
+    <section class="cuadrante" id="tareas">
+      <h2>📝 Tareas del Día</h2>
       <ul id="task-list"></ul>
-    </div>
+    </section>
 
-    <!-- Cuadrante 2: Pomodoro con actividad, progreso, botones y ciclos -->
-    <div class="cuadrante" id="pomodoro">
-      <h1>Pomodoro</h1>
-      <input type="text" id="activity" placeholder="¿Qué vas a trabajar hoy?" />
+    <!-- CUADRANTE 2: Pomodoro -->
+    <section class="cuadrante" id="pomodoro">
+      <h2>⏳ Pomodoro</h2>
+      <input type="text" id="activity" placeholder="Nombre de la actividad" />
       <div id="timer">25:00</div>
-      <div id="status">Foco</div>
+      <div id="status">Listo para iniciar</div>
       <div class="progress-bar">
-        <div class="progress"><span class="icon">🍅</span></div>
+        <div class="progress" id="progress"><span class="icon">🍅</span></div>
       </div>
       <div class="buttons">
         <button id="start">Iniciar</button>
         <button id="pause">Pausar</button>
         <button id="reset">Reiniciar</button>
-        <button onclick="clearHistory()">🗑 Historial</button>
       </div>
-      <p>Ciclos completados: <span id="cycles">0</span></p>
-      <h3>Historial de sesiones</h3>
-      <table id="history">
-        <thead>
-          <tr>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Modo</th>
-            <th>Actividad</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <button id="export" class="glass-button">Exportar resumen del día</button>
+      <div id="export-modal" class="modal">
+        <div class="modal-content">
+          <p>¿En qué formato deseas exportar tu resumen?</p>
+          <button id="export-md">Markdown (.md)</button>
+          <button id="export-pdf">PDF (.pdf)</button>
+          <br /><br />
+          <button id="close-modal">Cancelar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CUADRANTE 3: Logros -->
+    <section class="cuadrante" id="logros">
+      <h2>🏆 Logros del Día</h2>
+      <div id="logros-list">
+        <input type="text" placeholder="Logro 1" />
+        <input type="text" placeholder="Logro 2" />
+        <input type="text" placeholder="Logro 3" />
+      </div>
+    </section>
+
+    <!-- CUADRANTE 4: Agradecimientos -->
+    <section class="cuadrante" id="gratitud">
+      <h2>🙏 Agradecimientos del Día</h2>
+      <textarea id="gratitude" maxlength="500" placeholder="Hoy agradezco por..."></textarea>
+      <div id="gratitude-count">0/500</div>
+    </section>
+  </main>
+
+  <!-- Registro diario -->
+  <section class="cuadrante" id="registro">
+    <h2>📘 Registro Diario</h2>
+    <table id="history">
+      <thead>
+        <tr>
+          <th>Actividad</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Duración</th>
+        </tr>
+      </thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </section>
+
+  <!-- Sección Desplegable: Toma una Decisión -->
+  <section class="cuadrante" id="decisiones-toggle">
+    <button id="toggle-decision">Tomar una Decisión (modo chill) 🍃</button>
+  </section>
+
+  <section class="cuadrante" id="decisiones" style="display:none">
+    <h2>✨ Toma una Decisión (modo chill)</h2>
+    <label>¿Qué onda? ¿Cuál es el dilema?</label>
+    <input type="text" placeholder="Escribe tu dilema aquí..." />
+
+    <label>¿Cuándo necesitas decidir?</label>
+    <input type="date" />
+
+    <label>¿Qué tan importante es esto?</label>
+    <div class="opciones">
+      <label><input type="checkbox" /> Da igual</label>
+      <label><input type="checkbox" /> Meh</label>
+      <label><input type="checkbox" /> Vale la pena</label>
+      <label><input type="checkbox" /> Serio</label>
+      <label><input type="checkbox" /> Cambia vidas</label>
     </div>
 
-    <!-- Cuadrante 3: Logros del día -->
-    <div class="cuadrante" id="logros">
-      <h2>Logros del día</h2>
-      <ul id="logros-list">
-        <li><input type="text" placeholder="Logro 1" /></li>
-        <li><input type="text" placeholder="Logro 2" /></li>
-        <li><input type="text" placeholder="Logro 3" /></li>
-      </ul>
+    <label>¿Qué tan indeciso andas?</label>
+    <div class="opciones">
+      <label><input type="checkbox" /> No sé ni qué quiero</label>
+      <label><input type="checkbox" /> Estoy dudando</label>
+      <label><input type="checkbox" /> Meh, normal</label>
+      <label><input type="checkbox" /> Casi decidido</label>
+      <label><input type="checkbox" /> Ya lo tengo claro</label>
     </div>
 
-    <!-- Cuadrante 4: Agradecimientos del día -->
-    <div class="cuadrante" id="gratitud">
-      <h2>Agradecimientos del día</h2>
-      <textarea id="gratitude" maxlength="500" placeholder="Escribe aquí al menos 200 caracteres..."></textarea>
-      <p id="gratitude-count">0/500</p>
-      <button onclick="openExportModal()">📄 Exportar resumen del día</button>
+    <label>Mejor escenario</label>
+    <textarea rows="3"></textarea>
+    <label><input type="checkbox" /> Pura fantasía, pero se vale soñar</label>
+
+    <label>Peor escenario</label>
+    <textarea rows="3"></textarea>
+    <label><input type="checkbox" /> Se va todo alv (apocalipsis)</label>
+
+    <div class="dos-columnas">
+      <div>
+        <label>Lo que te dicen las tripas</label>
+        <textarea rows="6" placeholder="Escribe lo que sientes..."></textarea>
+      </div>
+      <div>
+        <label>Pros y contras</label>
+        <textarea rows="6" placeholder="+ Lo bueno...  - Lo no tan bueno..."></textarea>
+      </div>
     </div>
 
-  </div>
-
-  <!-- Modal para elegir tipo de exportación -->
-  <div id="export-modal" class="modal">
-    <div class="modal-content">
-      <h3>¿Cómo deseas exportar tu resumen?</h3>
-      <button onclick="exportResumen('md')">📄 Markdown</button>
-      <button onclick="exportResumen('pdf')">🧾 PDF</button>
-      <br/>
-      <button onclick="closeExportModal()">❌ Cancelar</button>
+    <div class="dos-columnas">
+      <div>
+        <label>Conclusión intuitiva</label>
+        <input type="text" placeholder="¿Qué te dice el corazón?" />
+      </div>
+      <div>
+        <label>Conclusión lógica</label>
+        <input type="text" placeholder="¿Qué dice tu mente?" />
+      </div>
     </div>
-  </div>
 
-  <!-- Sonido -->
-  <audio id="alarm-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
-  
-  <!-- JS principal -->
+    <label>Entonces, ¿qué decides?</label>
+    <input type="text" placeholder="Mi decisión es..." />
+    <label><input type="checkbox" /> Solo por hoy</label>
+
+    <label>¿Qué sigue? (Primeros pasos)</label>
+    <textarea rows="2" placeholder="Empieza por aquí..."></textarea>
+
+    <button>¡Listo, ya decidí!</button>
+    <footer>O también puedes lanzar una moneda 🪙</footer>
+  </section>
+
   <script src="./assets/js/script.js"></script>
 </body>
+
 </html>

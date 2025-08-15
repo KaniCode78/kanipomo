@@ -1,249 +1,195 @@
-// ======================
-// ELEMENTOS DEL DOM
-// ======================
-const timerDisplay = document.getElementById('timer');
-const startBtn = document.getElementById('start');
-const pauseBtn = document.getElementById('pause');
-const resetBtn = document.getElementById('reset');
-const statusText = document.getElementById('status');
-const cyclesDisplay = document.getElementById('cycles');
-const historyTable = document.querySelector('#history tbody');
-const alarm = document.getElementById('alarm-sound');
-const activityInput = document.getElementById('activity');
-const progressBar = document.querySelector('.progress');
-const gratitudeTextarea = document.getElementById('gratitude');
-const gratitudeCount = document.getElementById('gratitude-count');
-const taskList = document.getElementById('task-list');
-const exportModal = document.getElementById('export-modal');
+// script.js completo actualizado
 
-// ======================
-// CONSTANTES DE TIEMPO
-// ======================
-const focusTime = 25 * 60;
-const shortBreak = 5 * 60;
-const longBreak = 20 * 60;
+// Elementos principales del Pomodoro
+const startBtn = document.getElementById("start");
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+const timerDisplay = document.getElementById("timer");
+const statusDisplay = document.getElementById("status");
+const progress = document.getElementById("progress");
+const activityInput = document.getElementById("activity");
 
-// ======================
-// VARIABLES DE ESTADO
-// ======================
-let isRunning = false;
-let isFocus = true;
+// Export modal
+const exportBtn = document.getElementById("export");
+const exportModal = document.getElementById("export-modal");
+const exportMd = document.getElementById("export-md");
+const exportPdf = document.getElementById("export-pdf");
+const closeModal = document.getElementById("close-modal");
+
+// Registro diario
+const historyBody = document.getElementById("history-body");
+
+// Tareas
+const taskList = document.getElementById("task-list");
+const gratitude = document.getElementById("gratitude");
+const gratitudeCount = document.getElementById("gratitude-count");
+
+// Chill decision section
+const toggleDecision = document.getElementById("toggle-decision");
+const decisionSection = document.getElementById("decisiones");
+
 let timer;
-let timeLeft = focusTime;
-let cycles = 0;
-let sessionStart = null;
-
-let history = JSON.parse(localStorage.getItem('pomodoroHistory')) || [];
-let savedTasks = JSON.parse(localStorage.getItem('pomodoroTasks')) || [];
-
-// ======================
-// FUNCIONES PRINCIPALES
-// ======================
-function formatTime(seconds) {
-  let min = String(Math.floor(seconds / 60)).padStart(2, '0');
-  let sec = String(seconds % 60).padStart(2, '0');
-  return `${min}:${sec}`;
-}
+let timeLeft = 25 * 60;
+let isRunning = false;
+let pomodoroCount = 0;
+let currentStart;
 
 function updateDisplay() {
-  timerDisplay.textContent = formatTime(timeLeft);
-  statusText.textContent = isFocus ? 'Foco' : 'Descanso';
-  cyclesDisplay.textContent = cycles;
-  updateProgress();
+  const minutes = Math.floor(timeLeft / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = (timeLeft % 60).toString().padStart(2, "0");
+  timerDisplay.textContent = `${minutes}:${seconds}`;
+  const percentage = ((25 * 60 - timeLeft) / (25 * 60)) * 100;
+  progress.style.width = `${percentage}%`;
 }
 
-function updateProgress() {
-  const totalTime = isFocus ? focusTime : (cycles % 4 === 0 && cycles !== 0 ? longBreak : shortBreak);
-  const percent = ((totalTime - timeLeft) / totalTime) * 100;
-  progressBar.style.width = `${percent}%`;
-}
-
-function notifyUser(title, body) {
-  if (Notification.permission === 'granted') {
-    new Notification(title, { body });
-  }
-}
-
-function playSound() {
-  alarm.play();
-}
-
-function switchMode() {
-  const sessionEnd = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (sessionStart) {
-    logSession(sessionStart, sessionEnd, isFocus ? 'Foco' : 'Descanso', activityInput.value);
-  }
-
-  if (isFocus) cycles++;
-
-  isFocus = !isFocus;
-  timeLeft = isFocus ? focusTime : (cycles % 4 === 0 ? longBreak : shortBreak);
-  sessionStart = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-  updateDisplay();
-  playSound();
-  notifyUser(
-    isFocus ? '¡Hora de concentrarse!' : (cycles % 4 === 0 ? 'Descanso largo' : 'Descanso corto'),
-    isFocus ? 'Nuevo ciclo iniciado.' : 'Relájate un poco.'
-  );
-}
-
-function tick() {
-  if (timeLeft > 0) {
-    timeLeft--;
-    updateDisplay();
-  } else {
-    clearInterval(timer);
-    switchMode();
-    timer = setInterval(tick, 1000);
-  }
-}
-
-// ======================
-// EVENTOS DE BOTONES
-// ======================
-startBtn.addEventListener('click', () => {
+function startTimer() {
   if (!isRunning) {
-    sessionStart = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    timer = setInterval(tick, 1000);
+    currentStart = new Date();
     isRunning = true;
+    statusDisplay.textContent = "Pomodoro en curso...";
+    timer = setInterval(() => {
+      timeLeft--;
+      updateDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        isRunning = false;
+        pomodoroCount++;
+        registerPomodoro();
+        if (pomodoroCount % 4 === 0) {
+          alert("¡Tómate un descanso largo de 20-30 minutos!");
+          timeLeft = 30 * 60;
+        } else {
+          alert("Tómate un descanso corto de 5 minutos");
+          timeLeft = 5 * 60;
+        }
+        updateDisplay();
+        statusDisplay.textContent = "Descanso";
+      }
+    }, 1000);
   }
-});
+}
 
-pauseBtn.addEventListener('click', () => {
-  clearInterval(timer);
-  isRunning = false;
-});
+function pauseTimer() {
+  if (isRunning) {
+    clearInterval(timer);
+    isRunning = false;
+    statusDisplay.textContent = "Pausado";
+  }
+}
 
-resetBtn.addEventListener('click', () => {
+function resetTimer() {
   clearInterval(timer);
+  timeLeft = 25 * 60;
   isRunning = false;
-  isFocus = true;
-  timeLeft = focusTime;
   updateDisplay();
-});
-
-// ======================
-// HISTORIAL
-// ======================
-function logSession(start, end, mode, activity) {
-  history.push({ start, end, mode, activity });
-  localStorage.setItem('pomodoroHistory', JSON.stringify(history));
-  addHistoryRow(start, end, mode, activity);
+  statusDisplay.textContent = "Listo para iniciar";
 }
 
-function addHistoryRow(start, end, mode, activity) {
-  let row = document.createElement('tr');
-  row.innerHTML = `<td>${start}</td><td>${end}</td><td>${mode}</td><td>${activity || '-'}</td>`;
-  historyTable.appendChild(row);
-}
-
-function clearHistory() {
-  history = [];
-  localStorage.removeItem('pomodoroHistory');
-  historyTable.innerHTML = '';
-}
-
-history.forEach(entry => addHistoryRow(entry.start, entry.end, entry.mode, entry.activity));
-
-// ======================
-// TAREAS DIARIAS
-// ======================
-for (let i = 1; i <= 10; i++) {
-  const saved = savedTasks[i - 1] || { desc: '', done: false };
-  let li = document.createElement('li');
-  li.innerHTML = `
-    <input type="checkbox" id="task-${i}" ${saved.done ? 'checked' : ''} />
-    <input type="text" placeholder="Tarea ${i}" id="task-desc-${i}" class="task-desc ${saved.done ? 'task-completed' : ''}" value="${saved.desc}" />
+function registerPomodoro() {
+  const end = new Date();
+  const activity = activityInput.value || "Sin nombre";
+  const duration = ((end - currentStart) / 60000).toFixed(0);
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${activity}</td>
+    <td>${currentStart.toLocaleTimeString()}</td>
+    <td>${end.toLocaleTimeString()}</td>
+    <td>${duration} min</td>
   `;
-  taskList.appendChild(li);
+  historyBody.appendChild(row);
+  activityInput.value = "";
 }
 
-function saveTasks() {
-  const tasks = [];
-  for (let i = 1; i <= 10; i++) {
-    const desc = document.getElementById(`task-desc-${i}`).value;
-    const done = document.getElementById(`task-${i}`).checked;
-    tasks.push({ desc, done });
-  }
-  localStorage.setItem('pomodoroTasks', JSON.stringify(tasks));
-}
+function generateMarkdown() {
+  const gratitudeText = gratitude.value;
+  const logros = Array.from(document.querySelectorAll("#logros-list input"))
+    .map((el) => el.value)
+    .filter(Boolean)
+    .map((l) => `- ${l}`)
+    .join("\n");
 
-taskList.addEventListener('input', saveTasks);
-taskList.addEventListener('change', (e) => {
-  if (e.target && e.target.type === 'checkbox') {
-    const index = e.target.id.split('-')[1];
-    const input = document.getElementById(`task-desc-${index}`);
-    input.classList.toggle('task-completed', e.target.checked);
-    saveTasks();
-  }
-});
+  let markdown = `# Resumen del Día\n\n## Logros\n${logros}\n\n## Agradecimientos\n${gratitudeText}\n\n## Registro Pomodoro\n`;
 
-// ======================
-// AGRADECIMIENTOS
-// ======================
-gratitudeTextarea.addEventListener('input', () => {
-  gratitudeCount.textContent = `${gratitudeTextarea.value.length}/500`;
-});
-
-// ======================
-// MODAL DE EXPORTACIÓN
-// ======================
-function openExportModal() {
-  exportModal.style.display = 'flex';
-}
-
-function closeExportModal() {
-  exportModal.style.display = 'none';
-}
-
-// ======================
-// EXPORTAR RESUMEN
-// ======================
-function exportResumen(type = 'md') {
-  const actividad = activityInput.value;
-  const gratitude = gratitudeTextarea.value;
-  const date = new Date().toLocaleDateString();
-  let content = `# Resumen del Día - ${date}\n\n`;
-
-  content += `## Actividad principal\n${actividad || '-'}\n\n`;
-  content += `## Ciclos completados\n${cycles}\n\n`;
-
-  content += `## Historial de Pomodoros\n`;
-  history.forEach((h, i) => {
-    content += `- ${i + 1}. ${h.mode} | ${h.start} - ${h.end} | Actividad: ${h.activity || '-'}\n`;
+  historyBody.querySelectorAll("tr").forEach((row) => {
+    const cols = row.querySelectorAll("td");
+    markdown += `- ${cols[0].textContent}: ${cols[1].textContent} - ${cols[2].textContent} (${cols[3].textContent})\n`;
   });
 
-  content += `\n## Tareas del día\n`;
-  for (let i = 1; i <= 10; i++) {
-    const desc = document.getElementById(`task-desc-${i}`).value;
-    const done = document.getElementById(`task-${i}`).checked;
-    content += `- [${done ? 'x' : ' '}] ${desc || 'Tarea sin nombre'}\n`;
-  }
-
-  content += `\n## Agradecimientos del día\n${gratitude || 'Sin contenido'}\n`;
-
-  if (type === 'md') {
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Resumen_Pomodoro_${date.replace(/\//g, '-')}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-  } else if (type === 'pdf') {
-    const win = window.open('', '_blank');
-    win.document.write(`<pre style='font-family:monospace;'>${content}</pre>`);
-    win.document.close();
-    win.focus();
-    win.print();
-  }
-
-  closeExportModal();
+  return markdown;
 }
 
-// ======================
-// INICIALIZACIÓN FINAL
-// ======================
-Notification.requestPermission();
+function download(content, filename, type) {
+  const a = document.createElement("a");
+  const file = new Blob([content], { type });
+  a.href = URL.createObjectURL(file);
+  a.download = filename;
+  a.click();
+}
+
+startBtn.addEventListener("click", startTimer);
+pauseBtn.addEventListener("click", pauseTimer);
+resetBtn.addEventListener("click", resetTimer);
+exportBtn.addEventListener("click", () => {
+  exportModal.style.display = "flex";
+});
+closeModal.addEventListener("click", () => {
+  exportModal.style.display = "none";
+});
+
+exportMd.addEventListener("click", () => {
+  const md = generateMarkdown();
+  download(md, "resumen.md", "text/markdown");
+  exportModal.style.display = "none";
+});
+
+exportPdf.addEventListener("click", () => {
+  const md = generateMarkdown();
+  const win = window.open("", "", "width=800,height=600");
+  win.document.write(`<pre>${md}</pre>`);
+  win.document.close();
+  win.print();
+  exportModal.style.display = "none";
+});
+
+// Actualiza conteo de caracteres
+if (gratitude && gratitudeCount) {
+  gratitude.addEventListener("input", () => {
+    gratitudeCount.textContent = `${gratitude.value.length}/500`;
+  });
+}
+
+// Lista de tareas automática
+const tareas = [
+  "Planificar el día",
+  "Responder emails",
+  "Llamadas pendientes",
+  "Reuniones",
+  "Revisar pendientes",
+  "Desarrollo personal",
+  "Actualizar CRM",
+  "Seguimiento a clientes",
+  "Redes sociales",
+  "Evaluar progreso"
+];
+
+tareas.forEach((tarea) => {
+  const li = document.createElement("li");
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  li.appendChild(input);
+  li.appendChild(document.createTextNode(" " + tarea));
+  taskList.appendChild(li);
+});
+
+// Mostrar/ocultar sección modo chill
+if (toggleDecision && decisionSection) {
+  toggleDecision.addEventListener("click", () => {
+    const visible = decisionSection.style.display === "block";
+    decisionSection.style.display = visible ? "none" : "block";
+  });
+}
+
+// Inicializa display
 updateDisplay();
