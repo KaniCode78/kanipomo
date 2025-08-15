@@ -2,47 +2,92 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pomodoro Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Pomodoro</title>
   <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
+
 <body>
-  <div class="container">
-    <h1>Pomodoro</h1>
+<nav>
+  <div class="logo">
+    <img src="./assets/img/logo.png" alt="Logo Pomodoro" />
+    <h1>Dashboard Pomodoro</h1>
+  </div>
+  
+</nav>
+  <div class="dashboard">
 
-    <input type="text" id="activity" placeholder="¿Qué vas a trabajar hoy?" />
-
-    <div id="timer">25:00</div>
-    <div id="status">Foco</div>
-
-    <div class="progress-bar">
-      <div class="progress"><span class="icon">🍅</span></div>
+    <!-- Cuadrante 1: Lista de 10 tareas con checkbox -->
+    <div class="cuadrante" id="tareas">
+      <h2>Tareas del día</h2>
+      <ul id="task-list"></ul>
     </div>
 
-    <div class="buttons">
-      <button id="start">Iniciar</button>
-      <button id="pause">Pausar</button>
-      <button id="reset">Reiniciar</button>
-      <button onclick="clearHistory()">🗑 Historial</button>
+    <!-- Cuadrante 2: Pomodoro con actividad, progreso, botones y ciclos -->
+    <div class="cuadrante" id="pomodoro">
+      <h1>Pomodoro</h1>
+      <input type="text" id="activity" placeholder="¿Qué vas a trabajar hoy?" />
+      <div id="timer">25:00</div>
+      <div id="status">Foco</div>
+      <div class="progress-bar">
+        <div class="progress"><span class="icon">🍅</span></div>
+      </div>
+      <div class="buttons">
+        <button id="start">Iniciar</button>
+        <button id="pause">Pausar</button>
+        <button id="reset">Reiniciar</button>
+        <button onclick="clearHistory()">🗑 Historial</button>
+      </div>
+      <p>Ciclos completados: <span id="cycles">0</span></p>
+      <h3>Historial de sesiones</h3>
+      <table id="history">
+        <thead>
+          <tr>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Modo</th>
+            <th>Actividad</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
-    <p>Ciclos completados: <span id="cycles">0</span></p>
+    <!-- Cuadrante 3: Logros del día -->
+    <div class="cuadrante" id="logros">
+      <h2>Logros del día</h2>
+      <ul id="logros-list">
+        <li><input type="text" placeholder="Logro 1" /></li>
+        <li><input type="text" placeholder="Logro 2" /></li>
+        <li><input type="text" placeholder="Logro 3" /></li>
+      </ul>
+    </div>
 
-    <h2>Historial del día</h2>
-    <table id="history">
-      <thead>
-        <tr>
-          <th>Inicio</th>
-          <th>Fin</th>
-          <th>Modo</th>
-          <th>Actividad</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <!-- Cuadrante 4: Agradecimientos del día -->
+    <div class="cuadrante" id="gratitud">
+      <h2>Agradecimientos del día</h2>
+      <textarea id="gratitude" maxlength="500" placeholder="Escribe aquí al menos 200 caracteres..."></textarea>
+      <p id="gratitude-count">0/500</p>
+      <button onclick="openExportModal()">📄 Exportar resumen del día</button>
+    </div>
+
   </div>
 
+  <!-- Modal para elegir tipo de exportación -->
+  <div id="export-modal" class="modal">
+    <div class="modal-content">
+      <h3>¿Cómo deseas exportar tu resumen?</h3>
+      <button onclick="exportResumen('md')">📄 Markdown</button>
+      <button onclick="exportResumen('pdf')">🧾 PDF</button>
+      <br/>
+      <button onclick="closeExportModal()">❌ Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Sonido -->
   <audio id="alarm-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  
+  <!-- JS principal -->
   <script src="./assets/js/script.js"></script>
 </body>
 </html>
