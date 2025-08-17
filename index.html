@@ -22,8 +22,18 @@
       <input type="text" id="activity" placeholder="Nombre de la actividad" />
       <div id="timer">25:00</div>
       <div id="status">Listo para iniciar</div>
+
+      <!-- Selector de duración de foco -->
+<div class="duration">
+  <button class="glass-button duration-btn active" data-min="5">5 min</button>
+  <button class="glass-button duration-btn" data-min="10">10 min</button>
+  <button class="glass-button duration-btn" data-min="25">25 min</button>
+  <button class="glass-button duration-btn" data-min="50">50 min</button>
+</div>
+     
       <div class="progress-bar">
-        <div class="progress" id="progress"><span class="icon">🍅</span></div>
+        <div class="progress" id="progress"><span class="icon">🍅</span>
+        </div>
       </div>
       <div class="buttons">
         <button id="start">Iniciar</button>

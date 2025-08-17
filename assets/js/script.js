@@ -1,5 +1,7 @@
 // script.js completo actualizado
 
+
+
 // Elementos principales del Pomodoro
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
@@ -29,20 +31,44 @@ const toggleDecision = document.getElementById("toggle-decision");
 const decisionSection = document.getElementById("decisiones");
 
 let timer;
-let timeLeft = 25 * 60;
+
 let isRunning = false;
 let pomodoroCount = 0;
 let currentStart;
 
+
+let timeLeft = 25 * 60;
+let phaseTotal = 25 * 60; // 👈 total de la fase actual
+
+
 function updateDisplay() {
-  const minutes = Math.floor(timeLeft / 60)
-    .toString()
-    .padStart(2, "0");
+  const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
   timerDisplay.textContent = `${minutes}:${seconds}`;
-  const percentage = ((25 * 60 - timeLeft) / (25 * 60)) * 100;
-  progress.style.width = `${percentage}%`;
+
+  const percentage = ((phaseTotal - timeLeft) / phaseTotal) * 100;
+  progress.style.width = `${Math.max(0, Math.min(100, percentage))}%`;
 }
+
+////
+
+if (pomodoroCount % 4 === 0) {
+  // descanso largo
+  timeLeft = 25 * 60;
+  phaseTotal = 25 * 60;   // 👈 importante
+  statusDisplay.textContent = "Descanso largo";
+} else {
+  // descanso corto
+  timeLeft = 5 * 60;
+  phaseTotal = 5 * 60;    // 👈 importante
+  statusDisplay.textContent = "Descanso";
+}
+updateDisplay();
+
+///
+
+
+
 
 function startTimer() {
   if (!isRunning) {

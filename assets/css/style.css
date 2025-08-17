@@ -316,3 +316,67 @@ input:focus, textarea:focus, select:focus{
 #decisiones{
   margin-top: 20px;
 }
+
+
+
+
+/* Barra de progreso */
+.progress-bar{
+  width:100%;
+  height:14px;
+  border-radius:12px;
+  border:1px solid var(--card-border);
+  background: rgba(255,255,255,.06);
+  overflow:hidden;
+  position:relative;
+  margin: 8px 0 18px;
+}
+
+/* El fill de la barra empuja el contenido al extremo derecho */
+.progress{
+  height:100%;
+  width:0%;
+  background: var(--accent);
+  display:flex;                 /* 👈 importante */
+  align-items:center;
+  justify-content:flex-end;     /* 👈 la manzana se irá al extremo del fill */
+  transition: width 1s linear;  /* 👈 avanza suave */
+}
+
+/* Manzanita que viaja con el fill */
+.icon{
+  position:relative;            /* 👈 ya no absoluta */
+  right:6px;                    /* pequeño margen desde el borde del fill */
+  font-size:14px;
+  line-height:1;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.6));
+}
+
+/* Selector de duración (Pomodoro) */
+.duration{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin:6px 0 12px;
+  flex-wrap:wrap;
+}
+.duration .duration-btn{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid var(--card-border);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  cursor:pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background .2s, border-color .2s, transform .06s;
+  font-weight:500;
+}
+.duration .duration-btn:hover{ background: rgba(255,255,255,.10); }
+.duration .duration-btn:active{ transform: translateY(1px); }
+
+/* Estado activo */
+.duration .duration-btn.active{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,255,179,.12);
+}
